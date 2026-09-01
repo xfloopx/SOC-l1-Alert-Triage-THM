@@ -21,6 +21,8 @@ As a Tier 1 SOC Analyst, I investigated an automated high(senario 1) and critica
 * **Target File Path:** `C:\Users\S.Conway\Downloads\cats2025.mp4.exe`
 * **File MotW (Source URL):** `https://freecatvideoshd.monster/cats2025.mp4.exe`
 * **File Cryptographic Hash:** `14d8486f3f63875ef93cfd240c5dc10b` (MD5)
+![Lumma Stealer Alert Dashboard](./artifacts/scenario1_lumma_stealer.png)
+
 
 ### 🛠️ Security Stack & Telemetry Sources
 * **SIEM/Analytics:** [e.g., Splunk / Elastic Security / OpenSearch]
@@ -57,6 +59,8 @@ As a Tier 1 SOC Analyst, I investigated an automated high(senario 1) and critica
 * **Network Segment:** `UK04/MEETINGROOM`
 * **External Destination Domain:** `*.zoom.us` (Zoom Video Communications)
 * **Data Transferred:** Sent: **5.8 GB** | Received: **5.2 GB**
+![Zoom Data Transfer Alert Dashboard](./artifacts/scenario2_zoom_exfil.png)
+
 
 ### 🛠️ Security Stack & Telemetry Sources
 * **SIEM/Analytics:** [e.g., Splunk / Palo Alto Networks Cortex / Wireshark]
