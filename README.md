@@ -1,9 +1,9 @@
-# SOC-l1-Alert-Triage-THM
+# SOC-L1-Alert-Triage-THM
 Home lab conducted following the Hack the box Soc L1 alert triage module.
-# Enterprise SIEM Alert Triage & Incident Analysis
+
 
 ## 🔎 Executive Summary
-As a Tier 1 SOC Analyst, I investigated an automated high(senario 1) and critical-severity alerts(Scenario 2), indicating suspicious activity on a critical endpoint. The primary objective was to ingest event telemetry, analyze the artifacts, determine the true nature of the alert (True Positive vs. False Positive), and document actionable findings. Through diligent investigation, the activity was successfully classified, mapped to the MITRE ATT&CK framework, and packaged into a standardized escalation ticket.
+As a Tier 1 SOC Analyst, I investigated 4 alerts in THM SIEM indicating suspicious activity on a critical endpoint. The primary objective was to ingest event telemetry, analyze the artifacts, determine the true nature of the alert (True Positive vs. False Positive), and document actionable findings. Through diligent investigation, the activity was successfully classified, mapped to the MITRE ATT&CK framework, and packaged into a standardized escalation ticket.
 
 ## 🛠️ Security Stack & Environment
 * **SIEM & Analytics:** Used THM SIEM
