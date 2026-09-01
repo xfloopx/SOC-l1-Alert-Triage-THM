@@ -78,5 +78,91 @@ As a Tier 1 SOC Analyst, I investigated an automated high(senario 1) and critica
 * **MITRE ATT&CK Mapping:** N/A (Legitimate utility usage mimicking *Exfiltration Over Web Service - T1567*)
 * **Analyst Action Note:** Closed alert. No further host isolation or containment required. Recommended adjusting the SIEM correlation rule parameters to whitelist known enterprise video communication destinations (`*.zoom.us`, `*.teams.microsoft.com`) when originating from designated physical meeting room network blocks to reduce alert fatigue.
 
+## 📊 Scenario 3: Post-Delivery Phishing Analysis (Inbound Mail Threat)
+
+### 🎯 Threat Indicators & Targeted Asset
+* **Alert Ingested:** Phishing After Delivery (Spoofed Microsoft Support)
+* **Severity Classification:** High
+* **Targeted Hostname / User:** `e.huffman-desktop` (Eddie Huffman, `e.huffman@tryhackme.thm`)
+* **Malicious Attachment & Sender:** `REPORT.rar` from spoofed `support@microsoft.com`
+
+### 🔬 Technical Triage & Analysis
+* **Impersonation & Evasion:** The email spoofed a high-reputation domain but failed authentication protocols. The `.rar` attachment aimed to smuggle payloads past basic scanners.
+* **Authentication Failures:** SPF, DKIM, and DMARC validations all failed, indicating unauthorized sending infrastructure and cryptographic mismatches.
+* **Malware Objective:** Compressed archives like `REPORT.rar` are used to hide loaders or scripts, potentially leading to credential harvesting or initial access beaconing.
+
+### ⚠ Final Disposition & Action
+* **Classification:** **True Positive** (Malicious Delivery Phase)
+* **MITRE ATT&CK Mapping:** T1566.001 (Phishing: Malicious Attachment) & T1036.005 (Masquerading)
+* **Remediation Steps:** Purge the email from the user's mailbox, verify EDR logs on `e.huffman-desktop` for extraction activity, block the rogue origin IP at the gateway, and conduct user awareness training.
+<img width="1844" height="427" alt="scenario3_phishing_reporting" src="https://github.com/user-attachments/assets/8ae66559-d56d-49d6-9aa5-8d74e7490655" />
+
+
+## 📊 Scenario 3: Post-Delivery Phishing Analysis (Inbound Mail Threat)
+
+### 🎯 Threat Indicators & Targeted Asset
+* **Alert Ingested:** Phishing After Delivery (Spoofed Microsoft Support)
+* **Severity Classification:** High
+* **Targeted Hostname / User:** `e.huffman-desktop` (Eddie Huffman, `e.huffman@tryhackme.thm`)
+* **Malicious Attachment & Sender:** `REPORT.rar` from spoofed `support@microsoft.com`
+
+### 🔬 Technical Triage & Analysis
+* **Impersonation & Evasion:** The email spoofed a high-reputation domain but failed authentication protocols. The `.rar` attachment aimed to smuggle payloads past basic scanners.
+* **Authentication Failures:** SPF, DKIM, and DMARC validations all failed, indicating unauthorized sending infrastructure and cryptographic mismatches.
+* **Malware Objective:** Compressed archives like `REPORT.rar` are used to hide loaders or scripts, potentially leading to credential harvesting or initial access beaconing.
+
+### ⚠ Final Disposition & Action
+* **Classification:** **True Positive** (Malicious Delivery Phase)
+* **MITRE ATT&CK Mapping:** T1566.001 (Phishing: Malicious Attachment) & T1036.005 (Masquerading)
+* **Remediation Steps:** Purge the email from the user's mailbox, verify EDR logs on `e.huffman-desktop` for extraction activity, block the rogue origin IP at the gateway, and conduct user awareness training.
+<img width="1844" height="427" alt="scenario3_phishing_reporting" src="https://github.com/user-attachments/assets/da605663-b805-4eea-989a-4dcb4a0f649c" />
+
+
+## 📊 Scenario 4: Spike of Domain Discovery Commands (Web Shell & Reconnaissance)
+
+### 🎯 Threat Indicators & Targeted Asset
+* **Alert Ingested:** Spike of Domain Discovery Commands
+* **Severity Classification:** Critical
+* **Targeted Hostname:** DMZ-MSEXCHANGE-2013 (Exposed Mail Infrastructure)
+* **Impacted User Account:** NT AUTHORITY\SYSTEM (Maximum Local Privileges)
+* **Compromised Vector:** w3wp.exe (IIS Web Server Worker Process)
+* **Target File Path:** C:\Users\Public\revshell.exe
+* **Target Domain:** tryhackme.thm
+
+![scenario4_domain_discovery](scenario4_domain_discovery.png)
+
+### 🛠 Security Stack & Telemetry Sources
+* **SIEM/Analytics:** [e.g., Splunk / Elastic Security / OpenSearch]
+* **Telemetry Sources:**
+    * Microsoft-Windows-Sysmon (Event ID 1 - Process Creation) -> Captured the abnormal w3wp.exe -> revshell.exe -> cmd.exe process lineage.
+    * Microsoft-Windows-Security-Auditing (Event ID 4688 - Process Creation) -> Tracked the rapid execution of internal domain discovery command arguments.
+
+### 🔬 Technical Triage & Threat Intelligence Analysis
+* **Evasion & Execution Lineage:** The incident presents a classic web application compromise. The IIS process (`w3wp.exe`) should only handle HTTP/HTTPS web requests; spawning an untrusted binary (`revshell.exe`) from a globally writable directory (`C:\Users\Public\`) confirms a web shell exploit or remote code execution (RCE) payload.
+* **Adversary Objective:** Upon establishing the reverse shell connection under system privileges, the actor bypassed local privilege escalation and skipped directly to internal reconnaissance. The sequential use of `net group` and `nltest` indicates an automated script mapping the Active Directory layout.
+* **Malware Objective:** The activity serves as the enumeration prelude to lateral movement. The actor is mapping out high-value accounts and identifying primary Domain Controllers to prepare for domain-wide takeover or ransomware deployment.
+
+### Threat Intelligence & Artifacts
+
+| Artifact Type | Indicator Value | Assessment / Context |
+| :--- | :--- | :--- |
+| **Parent Process** | `C:\Users\Public\revshell.exe` | **Malicious Carrier** (Unauthorized network-facing binary) |
+| **Discovery Binary** | `nltest.exe /dclist:tryhackme.thm` | **Reconnaissance** (Active Directory Domain Controller query) |
+| **Privilege Scope** | `whoami /priv` | **Enumeration** (Verifying administrative rights and tokens) |
+
+### ⚠ Final Disposition & Action
+* **Classification:** **True Positive** (Web Shell Compromise / Internal Reconnaissance)
+* **MITRE ATT&CK Mapping:**
+    * Initial Access: **T1190** – Exploit Public-Facing Application
+    * Execution: **T1059.003** – Command and Scripting Interpreter: Windows Command Shell
+    * Discovery: **T1087.002** – Account Discovery: Domain Account
+    * Discovery: **T1018** – Remote System Discovery
+* **Recommended Containment & Next Steps:**
+    1. Leverage Endpoint Detection and Response (EDR) capabilities to immediately isolate host `DMZ-MSEXCHANGE-2013` from the network to kill the active C2 loop.
+    2. Enforce absolute process termination over the rogue `revshell.exe` binary instance and clear any lingering child cmd loops.
+    3. Collect `revshell.exe` along with corresponding IIS web application logs around the timestamp to analyze the web shell vector.
+    4. Review Active Directory controller telemetry to verify whether the actor managed to utilize any discovered domain admin credentials against secondary servers.
+<img width="1828" height="558" alt="scenario4_domain_discovery" src="https://github.com/user-attachments/assets/b80544ce-c161-4f27-8696-efaa0043aa01" />
+
 
 
