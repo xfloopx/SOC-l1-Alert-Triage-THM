@@ -232,5 +232,37 @@ To manage high-volume alert queues efficiently, incoming incidents are triaged b
 *   **Eliminated False Positives:** Leveraging context tools (lookups) prevents business-disrupting false alarms.
 *   **Operational Consistency:** Ensures every analyst on the team reaches the exact same conclusion given the same data points.
 
+## 📊 SOC Operations: Metrics & Objectives
+
+### 🎯 Core Mission & Strategic Objectives
+A Security Operations Center does not just chase alerts; it protects business continuity. This project aligns technical triage with three primary operational goals:
+1.  **Maximize Visibility:** Ensure comprehensive log coverage across endpoints, network perimeters, and cloud environments.
+2.  **Minimize Attacker Dwell Time:** Detect and neutralize threats before they can move laterally or exfiltrate data.
+3.  **Optimize Resource Efficiency:** Use automation and well-defined playbooks to reduce fatigue on Tier 1 analysts.
+
+---
+
+### 📈 Key Performance Indicators (KPIs) & Metrics
+To measure the effectiveness of the triage playbooks and queue management strategies implemented in this lab, the following industry-standard metrics are tracked:
+
+#### 1. Time-Based Operational Metrics
+*   **Mean Time to Detect (MTTD):** The average time from when a malicious event occurs to when the SIEM triggers an alert. 
+    *   *Goal:* Minimal. Driven by optimized correlation rules.
+*   **Mean Time to Acknowledge (MTTA):** The average time it takes a Tier 1 analyst to pick up an unassigned alert from the queue and begin tracking it.
+    *   *Goal:* Under 15 minutes for High/Medium alerts.
+*   **Mean Time to Respond/Remediate (MTTR):** The average time from alert acknowledgment to full containment or resolution (e.g., isolating the host, blocking an IP).
+    *   *Goal:* Under 60 minutes for critical incidents, heavily accelerated by using the playbooks documented above.
+
+#### 2. Data Quality & Efficiency Metrics
+*   **False Positive Rate:** The percentage of alerts that turn out to be benign background noise or authorized behavior.
+    *   *Impact:* High false positive rates cause analyst burnout. This repo's use of **Lookups** (Asset and HR directories) directly lowers this metric.
+*   **Alert-to-Incident Ratio:** The volume of raw alerts compared to true security incidents that require escalation.
+    *   *Impact:* Helps engineers tune SIEM rules to eliminate useless alert noise.
+
+---
+
+### 🛠️ Strategic Summary: The Analyst's Impact
+As a Tier 1 analyst, my primary day-to-day focus directly influences **MTTA** and **False Positive Reduction**. By utilizing structured workbooks, I ensure that alerts are acknowledged instantly according to queue priority, and benign traffic is filtered out accurately using corporate lookups before it can skew our MTTR.
+
 
 
