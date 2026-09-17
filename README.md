@@ -164,5 +164,73 @@ As a Tier 1 SOC Analyst, I investigated 4 alerts in THM SIEM indicating suspicio
     4. Review Active Directory controller telemetry to verify whether the actor managed to utilize any discovered domain admin credentials against secondary servers.
 <img width="1828" height="558" alt="scenario4_domain_discovery" src="https://github.com/user-attachments/assets/b80544ce-c161-4f27-8696-efaa0043aa01" />
 
+## 📁 Case Study: Structured Alert Triage (Workbooks & Lookups)
+
+### 📌 Overview
+This section documents the implementation of structured analytical workflows using incident response workbooks and operational lookups. Rather than relying on ad-hoc analytical instincts, this framework ensures standardized, repeatable, and error-free alert triage for a Tier 1 SOC environment.
+
+---
+
+### 🧠 Core Concepts
+
+#### 1. The Triage Lifecycle
+*   **Enrichment:** Querying asset, identity, and threat intelligence lookups to add context to an alert.
+*   **Investigation:** Cross-referencing enriched indicators against SIEM logs to determine intent.
+*   **Escalation:** Systematically passing validated, high-severity threats to Tier 2 handlers.
+
+#### 2. The Power of Lookups
+*   **Asset Inventories:** Mapping IP addresses to device owners, critical servers, and network zones.
+*   **Identity Lookups:** Verifying user roles, department alignment, and active HR travel logs.
+*   **Network Diagrams:** Identifying perimeter boundaries to differentiate internal noise from external threats.
+
+---
+
+### 🚦 Queue Prioritization Matrix
+To manage high-volume alert queues efficiently, incoming incidents are triaged based on a strict two-factor logic:
+
+1.  **Severity First:** High/Medium alerts are always triaged before Low/Informational alerts.
+2.  **Age Second:** If alerts share identical severity, the oldest uninvestigated alert is prioritized.
+
+| Priority | Alert Severity | Age Context | Action |
+| :--- | :--- | :--- | :--- |
+| **1** | 🔴 High | Oldest first | Immediate isolation & containment |
+| **2** | 🟡 Medium | Oldest first | Investigation within SLA window |
+| **3** | 🔵 Low | Oldest first | Review when queue is clear |
+
+---
+
+### 📜 Incident Playbooks (SOPs)
+
+#### 📋 Playbook 1: Unusual Login Location
+*   **Trigger:** SIEM flags a user logging in from an atypical geographic location or IP range.
+*   **Lookup Phase:** Check corporate HR records (e.g., BambooHR) for active travel requests.
+*   **Log Verification:** Inspect VPN logs for concurrent sessions from conflicting geographic regions.
+*   **Triage Logic:** 
+    *   *Match:* If the user has an approved travel log matching the location → **Close as False Positive**.
+    *   *No Match:* If no travel records exist and sessions overlap → **Escalate to Tier 2 (Account Compromise)**.
+
+#### 📋 Playbook 2: Suspicious PowerShell Execution
+*   **Trigger:** EDR logs a PowerShell process downloading an executable file from the internet.
+*   **Enrichment Phase:** Extract the target URL and query Threat Intelligence platforms (VirusTotal/AbuseIPDB).
+*   **Process Analysis:** Review the parent-child process tree (`cmd.exe` → `powershell.exe`).
+*   **Triage Logic:**
+    *   *Malicious:* URL matches known malicious infrastructure → **Isolate Endpoint & Escalate**.
+    *   *Benign:* Process is a verified, digitally signed administrative script → **Whitelist & Document**.
+
+#### 📋 Playbook 3: Internal Port Scanning
+*   **Trigger:** Internal firewall blocks rapid connection attempts across multiple ports from a single host.
+*   **Asset Lookup:** Match the source IP against the corporate Asset Inventory.
+*   **Role Verification:** Check if the device is a designated vulnerability scanner (e.g., Nessus, Qualys).
+*   **Triage Logic:**
+    *   *Authorized:* Source IP matches an official security scanner on schedule → **Close as Informational**.
+    *   *Unauthorized:* Source IP belongs to a standard user workstation → **Quarantine Host (Lateral Movement)**.
+
+---
+
+### 🎯 Key Takeaways & Skills Demonstrated
+*   **Reduced MTTR (Mean Time to Respond):** Standardizing triage paths minimizes analytical hesitation during critical windows.
+*   **Eliminated False Positives:** Leveraging context tools (lookups) prevents business-disrupting false alarms.
+*   **Operational Consistency:** Ensures every analyst on the team reaches the exact same conclusion given the same data points.
+
 
 
