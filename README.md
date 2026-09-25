@@ -348,5 +348,51 @@ An EDR's primary value is its ability to stop an active attack in its tracks. Th
 1. **Visibility Over Signatures:** Traditional AV fails against fileless malware or memory injection. EDR fills this visibility gap by focusing on *what a process does*, not just *what it looks like*.
 2. **Context is King:** Individual logs (like a single network connection or file creation) might look benign. EDR correlates these fragmented events into a chronological timeline, exposing the full attack lifecycle.
 
+# TryHackMe: Introduction to SIEM (Lab Walkthrough)
+
+## 📌 Project Overview
+This section covers the core fundamentals of **Security Information and Event Management (SIEM)** solutions within a Security Operations Center (SOC). 
+
+In enterprise environments, security infrastructure generates millions of fragmented data points daily. This lab explores how a SIEM serves as the centralized "brain" of a SOC—collecting, parsing, normalizing, and correlating massive volumes of disparate log data to detect active threats in real time.
+
+### 🛠️ Core Concepts Demonstrated
+* **Log Aggregation & Ingestion:** Collecting data from endpoints, firewalls, servers, and authentication databases into a single repository.
+* **Data Normalization:** Converting messy, vendor-specific logs into a standardized format (e.g., mapping fields to generic names like `source_ip` and `dest_port`).
+* **Correlation Rules:** Writing logic parameters that stitch separate, seemingly benign events together to flag a single complex attack pattern.
+* **Alerting & Dashboarding:** Visualizing trends, identifying statistical anomalies, and generating actionable alerts for analysts.
+
+---
+
+## 🏗️ The SIEM Architecture Lifecycle
+To effectively query logs, an analyst must understand how data travels from a local machine into the SIEM dashboard. The TryHackMe curriculum maps this out across three primary stages:
+
+```text
+<img width="444" height="342" alt="image" src="https://github.com/user-attachments/assets/9101b010-d86e-4067-adde-507e482b6207" />
+
+┌──────────────────────┐      ┌──────────────────────┐      ┌──────────────────────┐
+│  1. Log Collection   │ ───> │   2. Log Ingestion   │ ───> │  3. Log Retention    │
+│ (Agents, Forwarders, │      │ (Parsing, Indexing,  │      │  (Storage, Archiving,│
+│   Syslog Streamers)  │      │  Correlation Rules)  │      │   Search Queries)    │
+└──────────────────────┘      └──────────────────────┘      └──────────────────────┘
+```
+
+1. **Data Collection:** Lightweight software agents (e.g., Splunk Forwarders, Elastic Beats, Logstash) monitor log files locally on targets and forward them to the central SIEM.
+2. **Data Ingestion & Parsing:** The SIEM receives raw unstructured text, parses out key fields, hashes or stores timestamps accurately, and runs the data against active correlation alerts.
+3. **Data Indexing & Searching:** The processed data is written to rapid-access storage disks, allowing SOC analysts to search history using specialized query languages (e.g., Splunk SPL or Lucene/KQL).
+
+---
+
+## 📊 Essential Log Sources Tracked
+To build visibility across a target network, the SIEM pulls telemetry from highly specific system logs explored throughout this pathway:
+
+* **Authentication Logs:** Tracking `Event ID 4624` (Successful Logon) and `Event ID 4625` (Failed Logon) in Windows, or `/var/log/auth.log` in Linux to catch brute-force attempts.
+* **Network Logs:** Ingesting firewall permits/denies, DNS queries, and proxy server logs to trace command-and-control (C2) beacons or data exfiltration.
+* **Application & Web Logs:** Monitoring Apache, Nginx, or IIS web server logs (tracking HTTP status codes like `403 Forbidden` or `500 Internal Error`) to spot web application attacks like SQL Injection or Local File Inclusion (LFI).
+
+---
+
+## 🧠 Key Takeaways
+1. **The Power of Correlation:** A firewall block or a failed login sequence on its own might look normal. The true strength of a SIEM lies in its ability to alert an analyst when those two events happen simultaneously across different parts of the network.
+2. **Standardization Saves Time:** Without a SIEM, an analyst would waste critical triage minutes adjusting to the structural log style differences between a Cisco firewall, a Linux server, and a Windows Domain Controller.
 
 
