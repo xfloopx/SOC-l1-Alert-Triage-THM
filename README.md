@@ -366,8 +366,10 @@ In enterprise environments, security infrastructure generates millions of fragme
 ## 🏗️ The SIEM Architecture Lifecycle
 To effectively query logs, an analyst must understand how data travels from a local machine into the SIEM dashboard. The TryHackMe curriculum maps this out across three primary stages:
 
+<img width="444" height="342" alt="image" src="https://github.com/user-attachments/assets/4eb967f3-a470-42ae-b2db-d653d927c10a" />
+
+
 ```text
-<img width="444" height="342" alt="image" src="https://github.com/user-attachments/assets/9101b010-d86e-4067-adde-507e482b6207" />
 
 ┌──────────────────────┐      ┌──────────────────────┐      ┌──────────────────────┐
 │  1. Log Collection   │ ───> │   2. Log Ingestion   │ ───> │  3. Log Retention    │
