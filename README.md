@@ -265,4 +265,88 @@ To measure the effectiveness of the triage playbooks and queue management strate
 As a Tier 1 analyst, my primary day-to-day focus directly influences **MTTA** and **False Positive Reduction**. By utilizing structured workbooks, I ensure that alerts are acknowledged instantly according to queue priority, and benign traffic is filtered out accurately using corporate lookups before it can skew our MTTR.
 
 
+# TryHackMe: Introduction to EDR (Lab Walkthrough)
+
+## 📌 Project Overview
+This laboratory exploration focuses on the core mechanics, capabilities, and operational deployment of **Endpoint Detection and Response (EDR)** solutions within a modern Security Operations Center (SOC). 
+
+Unlike traditional signature-based antivirus solutions, EDR provides continuous, real-time visibility into endpoint behavior. This lab demonstrates how EDR tools aggregate telemetry, construct process trees, detect advanced persistent threats (APTs), and facilitate rapid incident response.
+
+<img width="959" height="874" alt="image" src="https://github.com/user-attachments/assets/b92361b8-5d0d-46ed-b049-daed933e3202" />
+
+
+### 🛠️ Core Capabilities Demonstrated
+* **Behavioral Analysis:** Overcoming static signature evasion by monitoring live system behavior.
+* **Process Lineage Mapping:** Visualizing parent-child process relationships to track initial access and execution vectors.
+* **Telemetry Aggregation:** Analyzing event logs, network connections, file modifications, and registry changes.
+* **Incident Response & Remediation:** Executing host isolation, process termination, and artifact containment.
+
+---
+
+## 🏗️ Architectural Topology
+To effectively triage EDR alerts, it is critical to understand the architecture enabling data collection. This lab covers the standard hub-and-spoke model utilized by enterprise EDR platforms:
+
+```text
+  [ Target Endpoint ]       [ Target Endpoint ]       [ Target Endpoint ]
+  (w/ EDR Agent Installed)  (w/ EDR Agent Installed)  (w/ EDR Agent Installed)
+            │                         │                         │
+            └─────────────────────────┼─────────────────────────┘
+                                      ▼
+                        [ Continuous Telemetry Stream ]
+                                      │
+                                      ▼
+                        ┌──────────────────────────┐
+                        │    EDR Cloud/Console     │
+                        │  (Ingestion & Analysis)  │
+                        └─────────────┬────────────┘
+                                      │
+                                      ▼
+                        ┌──────────────────────────┐
+                        │   SOC Analyst Triage     │
+                        │   (Alerts & Playbooks)   │
+                        └──────────────────────────┘
+```
+
+1. **EDR Agent:** A lightweight service running on the endpoint monitoring API calls, memory, registry, network, and file systems.
+2. **EDR Server/Cloud:** The centralized management console that ingests raw telemetry, correlates events, maps behavior against frameworks like MITRE ATT&CK, and surfaces actionable alerts.
+
+---
+
+## 🔍 Analytical Deep Dive & Log Triage
+
+> [!NOTE]
+> *Analyst Note: The following section documents the triage workflow, process tracking, and mitigation steps taken during the practical lab scenario.*
+
+### 1. The Process Tree (Execution Lineage)
+When investigating modern malicious payloads (such as living-off-the-land binaries), mapping process execution is critical. Below is the mapped lineage of the malicious activity identified during the lab:
+
+```text
+[PID 1024] explorer.exe (User Session)
+   └── [PID 4096] outlook.exe (Malicious Email Attachment Opened)
+        └── [PID 5120] cmd.exe (Spawned Command Line)
+             └── [PID 6144] powershell.exe -EncodedCommand BASE64... (Obfuscated Execution)
+                  └── [PID 7168] beacon.exe (C2 Callback established)
+```
+
+### 2. Telemetry Artifacts Identified
+* **File System:** A suspicious binary dropped into `C:\Users\Public\`.
+* **Network:** Outbound connections initiated by `powershell.exe` to an external, unclassified IP address on port `443`.
+* **Registry:** Persistence established by modifying the `Run` key at `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
+
+---
+
+## 🛡️ Defensive Engineering & Remediation Playbook
+An EDR's primary value is its ability to stop an active attack in its tracks. The following containment strategies were explored:
+
+* **Host Isolation:** Severing the compromised endpoint's network connectivity at the data link layer while maintaining the EDR management channel for forensic investigation.
+* **Process Termination:** Instantly killing `PID 7168 (beacon.exe)` and its parent processes to stop active malicious memory loops.
+* **Ban Hash (Blocklisting):** Submitting the SHA-256 hash of the malicious file to the global EDR policy engine to prevent execution on any other endpoint across the enterprise network.
+
+---
+
+## 🧠 Key Takeaways
+1. **Visibility Over Signatures:** Traditional AV fails against fileless malware or memory injection. EDR fills this visibility gap by focusing on *what a process does*, not just *what it looks like*.
+2. **Context is King:** Individual logs (like a single network connection or file creation) might look benign. EDR correlates these fragmented events into a chronological timeline, exposing the full attack lifecycle.
+
+
 
